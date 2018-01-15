@@ -106,7 +106,7 @@ var video_change={
 
       canvas_box.style.top=0+"px";
       canvas_box.style.left=0;
-      canvas_box.style.zIndex=99999;
+      canvas_box.style.zIndex=10;
   },
   resize2:function(){
       if(this.isappend){
