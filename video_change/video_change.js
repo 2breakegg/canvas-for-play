@@ -5,6 +5,7 @@ video_change_config={
   font_size:10,           // 字符的大小 必须为数字
   font_family:"微软雅黑", // 字体
   draw_type:2,            //效果的类型 必须为数字["blackWhite","drawChar","inverseColor","red","green","blue","mosaic"],
+  fps:24,                 //每秒刷新次数
   chars:"．＇＿＿＿；；；～～～＊＊＝！＾＾＾／／／（（］］７二二１１１１３３２十十十三三了９９００＄士士小千８飞飞大大几计％＆＆从从手方车车生生开价乐乐乐涉涉涉考及＠这这些些发机快快间地的的浪角阿师我四就就弹度速联联德顿看看费费算算算榴榴圖",
   // chars:["．","一","十","大","三","天","王","日","四","田","同","国","圖"],
   // chars:["．","一","二","三","四","岁","国","圖"],
@@ -22,13 +23,15 @@ var video_change={
       font_family:"微软雅黑",
       chars:"．＇＿＿＿；；；～～～＊＊＝！＾＾＾／／／（（］］７二二１１１１３３２十十十三三了９９００＄士士小千８飞飞大大几计％＆＆从从手方车车生生开价乐乐乐涉涉涉考及＠这这些些发机快快间地的的浪角阿师我四就就弹度速联联德顿看看费费算算算榴榴圖",
       draw_type:0,
+      fps:24,
   },
   font_size:5,
   font_family:"微软雅黑",
   chars:"．＇＿＿＿；；；～～～＊＊＝！＾＾＾／／／（（］］７二二１１１１３３２十十十三三了９９００＄士士小千８飞飞大大几计％＆＆从从手方车车生生开价乐乐乐涉涉涉考及＠这这些些发机快快间地的的浪角阿师我四就就弹度速联联德顿看看费费算算算榴榴圖",
   draw_type:0,
+  fps:24,
 
-  draw_types:["blackWhite","drawChar","inverseColor","red","green","blue","mosaic"],
+  draw_types:["noEffect","blackWhite","drawChar","inverseColor","red","green","blue","mosaic"],
 
   isappend:false,
   video:null,
@@ -62,14 +65,18 @@ var video_change={
       }
 
       this.resize();
-      // this.drawOnce();
-      this.drawStart();
+      this.draw();
+      if(!this.video.paused){
+        this.drawStart();
+      }
+      this.addEvent();
   },
   readConfig:function(config){
       this.font_family=config.font_family;
       this.font_size= (config.font_size|0 > 0) ? config.font_size|0 : 1 ;
       this.chars=config.chars;
       this.draw_type= (config.draw_type|0) % this.draw_types.length;
+      this.fps=config.fps>0? config.fps :1;
   },
   resize:function(){
       if(this.isappend){
@@ -145,16 +152,14 @@ var video_change={
       canvas_box.style.zIndex=99999;
       
   },
-  drawOnce:function(){
-      this.ctx.drawImage(this.video,0,0,this.video_width,this.video_height);
-  },
   draw:function(){
       var ctx=this.ctx;
       ctx.drawImage(this.video,0,0,this.video_width,this.video_height);
       var imageData=ctx.getImageData(0,0,this.video_width,this.video_height);        
       this[this.draw_types[this.draw_type]](imageData);
   },
-
+  
+  noEffect:function(imageData){},
   blackWhite:function(imageData){
       var data=imageData.data;
       var black;
@@ -334,18 +339,26 @@ var video_change={
   },
 
   drawStart:function(){
-      this.stop();
-      var abc=this;
-      this.interval=setInterval(function(){
-          abc.draw();
-      },1000/60);
+      video_change.stop();
+      video_change.interval=setInterval(function(){
+        video_change.draw();
+      },1000/video_change.fps);
+  },
+  addEvent:function(){
+      this.video.addEventListener("play",video_change.drawStart);
+      this.video.addEventListener("pause",video_change.stop);
+  },
+  removeEvent:function(){
+      this.video.removeEventListener("play",video_change.drawStart);
+      this.video.removeEventListener("pause",video_change.stop);
   },
   stop:function(){
-      clearInterval(this.interval);
+      clearInterval(video_change.interval);
   },
-
+  
   destroy:function(){
       this.stop();
+      this.removeEvent();
       this.canvas.remove();
       this.canvas_box.remove();
   }
