@@ -164,7 +164,7 @@ var video_change={
       var data=imageData.data;
       var black;
       for(var i=0;i<data.length;i+=4){
-          black=(data[i]+data[i+1]+data[i+2])/3;
+          black=((data[i]+data[i+1]+data[i+2])/3)|0;
           data[i]=black;
           data[i+1]=black;
           data[i+2]=black;
@@ -275,9 +275,9 @@ var video_change={
                   }
               }
 
-              rgb[0]=rgb[0]/size/size;
-              rgb[1]=rgb[1]/size/size;
-              rgb[2]=rgb[2]/size/size;
+              rgb[0]=(rgb[0]/size/size)|0;
+              rgb[1]=(rgb[1]/size/size)|0;
+              rgb[2]=(rgb[2]/size/size)|0;
               for(top2=0;top2<size;top2++){
                   for(left2=0;left2<size;left2++){
                       pxId2=pxId+top2*this.video_width+left2;
